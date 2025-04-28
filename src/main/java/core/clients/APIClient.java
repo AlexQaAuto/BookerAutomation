@@ -8,6 +8,8 @@ public class APIClient {
 
     private final String baseUrl;
 
+
+
     public APIClient() {
         this.baseUrl = determineBaseUrl();
     }

@@ -27,8 +27,8 @@ public class GetBookingById {
     @Test
     public void testGetBookingById() throws Exception {
 
-        // Выполняем запрос к эндпоинту /booking/1 через APIClient
-        Response response = apiClient.getBookingById();
+        // Выполняем запрос к эндпоинту /booking/2 через APIClient
+        Response response = apiClient.getBookingById(2);
 
         // Проверяем что статус-код ответа равен 200
         assertThat(response.getStatusCode()).isEqualTo(200);

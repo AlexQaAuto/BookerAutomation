@@ -41,7 +41,7 @@ public class APIClient {
     }
 
     //GET запрос на эндпоинт /booking/1
-    public Response getBookingById() {
+    public Response getBookingById(int id) {
         return getRequestSpec()
                 .when()
                 .get(ApiEndpoints.BOOKINGBYID.getPath()) //Используем ENUM для эндпоинта booking/1

@@ -46,7 +46,7 @@ public class GetAndDeletedBooking {
         assertThat(bookings).isNotEmpty(); //Проверяем, что список не пуст
 
         // Берём первый id из списка
-        int bookingId = bookings.get(1).getBookingid();
+        int bookingId = bookings.get(0).getBookingid();
 
         // Удаляем id полученный выше
         Response deleteResponse = apiClient.deleteBooking(bookingId);
@@ -54,5 +54,10 @@ public class GetAndDeletedBooking {
         // Проверяем, что удаление прошло успешно
         assertThat(deleteResponse.getStatusCode()).isEqualTo(201);
 
+        // Проверяем что удаленный id не существует
+        Response getDeletedBookingResponse = apiClient.getBookingById(bookingId);
+        assertThat(getDeletedBookingResponse.getStatusCode()).isEqualTo(404);
     }
-}
+
+    }
+

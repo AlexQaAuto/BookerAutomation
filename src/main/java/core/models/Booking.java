@@ -15,6 +15,7 @@ public class Booking {
     private String additionalneeds;
 
 
+
     //Конструктор
     @JsonCreator
     public Booking(
@@ -31,50 +32,62 @@ public class Booking {
 
     }
     public String getFirstname () {
+
         return firstname;
     }
 
     public void setFirstname ( String firstname){
+
         this.firstname = firstname;
     }
 
     public String getLastname () {
+
         return lastname;
     }
 
     public void setLastname ( String lastname){
+
         this.lastname = lastname;
     }
 
     public double getTotalprice () {
+
         return totalprice;
     }
 
     public void setTotalprice ( double totalprice){
+
         this.totalprice = totalprice;
     }
 
     public boolean isDepositpaid () {
+
         return depositpaid;
     }
 
     public void setDepositpaid ( boolean depositpaid){
+
         this.depositpaid = depositpaid;
     }
 
     public BookingDates getBookingdates () {
+
         return bookingdates;
     }
 
     public void setBookingdates (BookingDates bookingdates){
+
         this.bookingdates = bookingdates;
     }
 
     public String getAdditionalneeds () {
+
         return additionalneeds;
     }
 
     public void setAdditionalneeds (String additionalneeds){
+
         this.additionalneeds = additionalneeds;
     }
 
@@ -89,6 +102,10 @@ public class Booking {
         this.bookingid = bookingid;
     }
 
+    public int getId() {
+        return getId();
+    }
+
 
     public static class BookingDates {
         private Date checkin;
@@ -97,18 +114,22 @@ public class Booking {
 
         //Геттер и сеттер
         public Date getCheckin() {
+
             return checkin;
         }
 
         public void setCheckin(Date checkin) {
+
             this.checkin = checkin;
         }
 
         public Date getCheckout() {
+
             return checkout;
         }
 
         public void setCheckout(Date checkout) {
+
             this.checkout = checkout;
         }
     }

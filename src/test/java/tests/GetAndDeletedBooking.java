@@ -45,7 +45,6 @@ public class GetAndDeletedBooking {
         //Проверяем, что тело ответа содержит объекты Booking
         assertThat(bookings).isNotEmpty(); //Проверяем, что список не пуст
 
-
         // Берём первый id из списка
         int bookingId = bookings.get(1).getBookingid();
 

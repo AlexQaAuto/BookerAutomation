@@ -53,7 +53,7 @@ public class GetAndDeletedBooking {
         Response deleteResponse = apiClient.deleteBooking(bookingId);
 
         // Проверяем, что удаление прошло успешно
-        assertThat(deleteResponse.getStatusCode()).isEqualTo(201); // или 200, в зависимости от API
+        assertThat(deleteResponse.getStatusCode()).isEqualTo(201);
 
     }
 }

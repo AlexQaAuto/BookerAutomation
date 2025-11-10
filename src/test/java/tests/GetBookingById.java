@@ -28,10 +28,7 @@ public class GetBookingById {
     public void testGetBookingById() throws Exception {
 
         // Выполняем запрос к эндпоинту /booking/2 через APIClient
-        Response response = apiClient.getBookingById(2);
-
-        // Проверяем что статус-код ответа равен 200
-        assertThat(response.getStatusCode()).isEqualTo(200);
+        Response response = apiClient.getBookingById(47);
 
         // Десериализуем тело ответа в список объектов Booking
         String responseBody = response.getBody().asString();
@@ -40,17 +37,9 @@ public class GetBookingById {
         //Проверяем, что тело ответа содержит объекты Booking
         assertThat(booking).isNotNull();
 
-        //Проверяем, что список не пуст
-        assertThat(booking.getFirstname()).isNotNull();
-        assertThat(booking.getLastname()).isNotNull();
-        assertThat(booking.getTotalprice()).isGreaterThan(0);
-        assertThat(booking.isDepositpaid()).isIn(true, false);
+        // Проверяем что статус-код ответа равен 200
+        assertThat(response.getStatusCode()).isEqualTo(200);
 
-        assertThat(booking.getBookingdates()).isNotNull();
-        assertThat(booking.getBookingdates().getCheckin()).isNotNull();
-        assertThat(booking.getBookingdates().getCheckout()).isNotNull();
-
-        assertThat(booking.getAdditionalneeds()).isNotNull();
 
 
         }

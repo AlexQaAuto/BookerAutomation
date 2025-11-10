@@ -2,11 +2,9 @@ package core.settings;
 
 public enum ApiEndpoints {
     PING("/ping"),
-    BOOKING("/booking"), //Новый эндпоинт booking
-    BOOKINGBYID("/booking/%d");
-
-
-    public static final String BASE_URL = "https://restful-booker.herokuapp.com";
+    BOOKING("/booking"),
+    BOOKINGBYID("/booking/%d"),
+    AUTH("/auth");
 
     private final String path;
 
@@ -17,4 +15,6 @@ public enum ApiEndpoints {
     public String getPath() {
         return path;
     }
+
+    public static final String BASE_URL = "https://restful-booker.herokuapp.com";
 }

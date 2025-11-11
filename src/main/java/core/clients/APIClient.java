@@ -17,6 +17,18 @@ public class APIClient {
                 .header("Accept", "application/json");
     }
 
+    // POST /auth — получение токена
+    public Response createToken(String username, String password) {
+        String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", username, password);
+        return getRequestSpec()
+                .body(body)
+                .when()
+                .post("/auth")
+                .then()
+                .extract()
+                .response();
+    }
+
     // GET /ping
     public Response ping() {
         return getRequestSpec()
@@ -50,6 +62,17 @@ public class APIClient {
                 .response(); // не проверяем statusCode здесь, оставляем для теста
     }
 
+    // POST /booking — создание брони
+    public Response createBooking(String body) {
+        return getRequestSpec()
+                .body(body)
+                .when()
+                .post(ApiEndpoints.BOOKING.getPath())
+                .then()
+                .extract()
+                .response();
+    }
+
     // DELETE /booking/{id} — принимает токен и возвращает Response
     public Response deleteBooking(int id, String token) {
         String path = String.format(ApiEndpoints.BOOKINGBYID.getPath(), id);
@@ -62,26 +85,18 @@ public class APIClient {
                 .response(); // не проверяем statusCode здесь, проверка делается в тесте
     }
 
-    // POST /booking — создание брони
-    public Response createBooking(String body) {
+    // PUT /booking/{id} — обновление бронирования
+    public Response updateBooking(int id, String body, String token) {
+        String path = String.format(ApiEndpoints.BOOKINGBYID.getPath(), id);
         return getRequestSpec()
+                .header("Cookie", "token=" + token)
                 .body(body)
                 .when()
-                .post(ApiEndpoints.BOOKING.getPath())
+                .put(path)
                 .then()
                 .extract()
                 .response();
     }
 
-    // POST /auth — получение токена
-    public Response createToken(String username, String password) {
-        String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", username, password);
-        return getRequestSpec()
-                .body(body)
-                .when()
-                .post("/auth")
-                .then()
-                .extract()
-                .response();
-    }
+
 }

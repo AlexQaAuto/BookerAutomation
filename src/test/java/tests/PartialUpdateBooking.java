@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class UpdateBooking {
+public class PartialUpdateBooking {
 
     private APIClient apiClient;
     private ObjectMapper objectMapper;
@@ -31,12 +31,12 @@ public class UpdateBooking {
 
         // Создаём объект Booking c необходимыми данными
         newBooking = new NewBooking(); // Создали объект NewBooking
-        newBooking.setFirstname("Sir");
-        newBooking.setLastname("Ferguson");
-        newBooking.setTotalprice(333);
+        newBooking.setFirstname("Alex");
+        newBooking.setLastname("Smith");
+        newBooking.setTotalprice(456);
         newBooking.setDepositpaid(true);
-        newBooking.setBookingdates(new BookingDates("2024-03-01", "2024-02-04"));
-        newBooking.setAdditionalneeds("Breakfast");
+        newBooking.setBookingdates(new BookingDates("2024-06-01", "2024-05-12"));
+        newBooking.setAdditionalneeds("Test");
 
         // Отправляем запрос на создание бронирования
         String bookingJson = new ObjectMapper().writeValueAsString(newBooking);
@@ -51,19 +51,18 @@ public class UpdateBooking {
     }
 
     @Test
-    public void PutUpdateBooking() throws JsonProcessingException {
+    public void PatchUpdateBooking() throws JsonProcessingException {
         // Получаем текущее состояние бронирования
         Response getResponse = apiClient.getBookingById(bookingId);
         assertEquals(200, getResponse.statusCode(), "Бронирование не найдено перед обновлением");
 
         // Обновляем данные
         newBooking.setFirstname("Mike");
-        newBooking.setTotalprice(13456);
 
         String requestBody = objectMapper.writeValueAsString(newBooking);
         // создаём токен
         String token = apiClient.createToken("admin", "password123").jsonPath().getString("token");
-        Response response = apiClient.updateBooking(bookingId, requestBody, token);
+        Response response = apiClient.patchUpdateBooking(bookingId, requestBody, token);
 
         // Проверяем статус-код
         assertEquals(200, response.statusCode(), "Ожидаемый статус код - 200 для обновления");
@@ -74,8 +73,12 @@ public class UpdateBooking {
         UpdatedBooking updatedBooking = objectMapper.readValue(responseBody, UpdatedBooking.class);
 
         assertEquals("Mike", updatedBooking.getFirstname());
-        assertEquals(13456, updatedBooking.getTotalprice());
-
+        assertEquals("Smith", updatedBooking.getLastname());
+        assertEquals(456, updatedBooking.getTotalprice());
+        assertEquals(true, updatedBooking.isDepositpaid());
+        assertEquals("2024-06-01", updatedBooking.getBookingdates().getCheckin());
+        assertEquals("2024-05-12", updatedBooking.getBookingdates().getCheckout());
+        assertEquals("Test", updatedBooking.getAdditionalneeds());
     }
 
 

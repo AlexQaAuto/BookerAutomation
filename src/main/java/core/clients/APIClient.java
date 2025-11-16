@@ -98,5 +98,17 @@ public class APIClient {
                 .response();
     }
 
+    // PATCH /booking/{id} — частичное обновление бронирования
+    public Response patchUpdateBooking(int id, String body, String token) {
+        String path = String.format(ApiEndpoints.BOOKINGBYID.getPath(), id);
+        return getRequestSpec()
+                .header("Cookie", "token=" + token)
+                .body(body)
+                .when()
+                .patch(path)
+                .then()
+                .extract()
+                .response();
+    }
 
 }

@@ -10,7 +10,7 @@ import static core.settings.ApiEndpoints.BASE_URL;
 public class APIClient {
 
     // Настройка базовых параметров HTTP-запросов
-    private RequestSpecification getRequestSpec() {
+    public RequestSpecification getRequestSpec() {
         return RestAssured.given()
                 .baseUri(BASE_URL)
                 .header("Content-type", "application/json")

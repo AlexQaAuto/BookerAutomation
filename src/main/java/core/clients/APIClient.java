@@ -5,6 +5,8 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
+import java.util.Map;
+
 import static core.settings.ApiEndpoints.BASE_URL;
 
 public class APIClient {
@@ -110,5 +112,17 @@ public class APIClient {
                 .extract()
                 .response();
     }
+
+    //Метод для выполнения GET с любыми фильтрами
+    public Response getBookings(Map<String, String> filters) {
+        return getRequestSpec()
+                .queryParams(filters)
+                .when()
+                .get("/booking")
+                .then()
+                .extract()
+                .response();
+    }
+
 
 }

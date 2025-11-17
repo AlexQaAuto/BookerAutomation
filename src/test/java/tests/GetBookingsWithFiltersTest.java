@@ -7,7 +7,6 @@ import core.models.BookingDates;
 import core.models.CreatedBooking;
 import core.models.NewBooking;
 import io.restassured.response.Response;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
@@ -19,24 +18,20 @@ public class GetBookingsWithFiltersTest {
 
     private APIClient apiClient;
     private ObjectMapper objectMapper;
-    private CreatedBooking createdBooking;
 
-    // храним ID всех созданных бронирований
-    private final List<Integer> createdBookingIds = new ArrayList<>();
+    private final List<Integer> createdIds = new ArrayList<>();
 
     @BeforeEach
     public void setUp() throws JsonProcessingException {
         apiClient = new APIClient();
         objectMapper = new ObjectMapper();
 
-        // Создаём несколько бронирований
-        createBooking("Alex", "Smith", "2024-06-01", "2024-06-10");
-        createBooking("Alex", "Brown", "2024-06-05", "2024-06-07");
-        createBooking("John", "Smith", "2024-06-01", "2024-06-02");
+        createdIds.add(createBooking("Alex", "Smith", "2024-06-01", "2024-06-10"));
+        createdIds.add(createBooking("Alex", "Brown", "2024-06-05", "2024-06-07"));
+        createdIds.add(createBooking("John", "Smith", "2024-06-01", "2024-06-02"));
     }
 
-    /** Упрощённый метод создания бронирования */
-    private void createBooking(String first, String last, String checkin, String checkout)
+    private int createBooking(String first, String last, String checkin, String checkout)
             throws JsonProcessingException {
 
         NewBooking booking = new NewBooking();
@@ -48,69 +43,65 @@ public class GetBookingsWithFiltersTest {
         booking.setAdditionalneeds("Test");
 
         String body = objectMapper.writeValueAsString(booking);
-
         Response response = apiClient.createBooking(body);
-        assertEquals(200, response.statusCode(), "Бронирование должно быть создано");
 
-        int id = response.jsonPath().getInt("bookingid");
-        createdBookingIds.add(id);
+        assertEquals(200, response.statusCode(), "Бронирование должно быть создано");
+        return response.jsonPath().getInt("bookingid");
     }
 
-    /** Метод для выполнения GET с любыми фильтрами */
-    private Response sendFilterRequest(Map<String, String> params) {
-        return apiClient.getRequestSpec()
-                .queryParams(params)
-                .when()
-                .get("/booking")
-                .then()
-                .extract()
-                .response();
+    // Универсальный helper
+    private List<Integer> getIdsByFilter(Map<String, String> filter) {
+        Response r = apiClient.getBookings(filter);
+        assertEquals(200, r.statusCode(), "Неверный статус при фильтрации");
+        return r.jsonPath().getList("bookingid");
     }
 
     @Test
-    public void testGetBookingsWithFilters() {
+    public void testFilterByFirstname() {
+        List<Integer> ids = getIdsByFilter(Map.of("firstname", "Alex"));
 
-        //Фильтр по имени
-        Map<String, String> nameFilter = Map.of("firstname", "Alex");
-        Response respByFirstName = sendFilterRequest(nameFilter);
-        assertEquals(200, respByFirstName.statusCode());
-        assertThat(respByFirstName.jsonPath().getList("bookingid"));
+        assertThat(ids)
+                .containsExactlyInAnyOrder(createdIds.get(0), createdIds.get(1));
+    }
 
-        //Фильтр по фамилии
-        Map<String, String> lastNameFilter = Map.of("lastname", "Smith");
-        Response respByLastName = sendFilterRequest(lastNameFilter);
-        assertEquals(200, respByLastName.statusCode());
-        assertThat(respByLastName.jsonPath().getList("bookingid"));
+    @Test
+    public void testFilterByLastname() {
+        List<Integer> ids = getIdsByFilter(Map.of("lastname", "Smith"));
 
-        //Фильтр по checkin
-        Map<String, String> checkinFilter = Map.of("checkin", "2024-06-01");
-        Response respCheckin = sendFilterRequest(checkinFilter);
-        assertEquals(200, respCheckin.statusCode());
-        assertThat(respCheckin.jsonPath().getList("bookingid"));
+        assertThat(ids)
+                .containsExactlyInAnyOrder(createdIds.get(0), createdIds.get(2));
+    }
 
-        //Фильтр по checkin + checkout
-        Map<String, String> fullDateFilter = new HashMap<>();
-        fullDateFilter.put("checkin", "2024-06-05");
-        fullDateFilter.put("checkout", "2024-06-07");
+    @Test
+    public void testFilterByCheckinDate() {
+        List<Integer> ids = getIdsByFilter(Map.of("checkin", "2024-06-01"));
 
-        Response respDates = sendFilterRequest(fullDateFilter);
-        assertEquals(200, respDates.statusCode());
-        assertThat(respDates.jsonPath().getList("bookingid")).hasSize(1);
+        assertThat(ids)
+                .containsExactlyInAnyOrder(createdIds.get(0), createdIds.get(2));
+    }
+
+    @Test
+    public void testFilterByFullDateRange() {
+        Map<String, String> filter = Map.of(
+                "checkin", "2024-06-05",
+                "checkout", "2024-06-07"
+        );
+
+        List<Integer> ids = getIdsByFilter(filter);
+
+        // Вариант A — проверяем только наличие бронирования
+        assertThat(ids)
+                .as("Список должен содержать бронирование с указанным диапазоном дат")
+                .contains(createdIds.get(1));
     }
 
     @AfterEach
     public void tearDown() {
-        if (createdBooking != null) {
-            // создаём токен
-            String token = apiClient.createToken("admin", "password123").jsonPath().getString("token");
+        String token = apiClient.createToken("admin", "password123")
+                .jsonPath().getString("token");
 
-            // удаляем бронирование
-            Response deleteResponse = apiClient.deleteBooking(createdBooking.getBookingid(), token);
-            AssertionsForClassTypes.assertThat(deleteResponse.getStatusCode()).isEqualTo(201);
-
-            // проверяем, что бронирование больше не существует
-            Response getResponse = apiClient.getBookingById(createdBooking.getBookingid());
-            AssertionsForClassTypes.assertThat(getResponse.getStatusCode()).isEqualTo(404); // корректный код после удаления
+        for (Integer id : createdIds) {
+            apiClient.deleteBooking(id, token);
         }
     }
 }
